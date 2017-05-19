@@ -60,11 +60,13 @@ class DevicesController extends FOSRestController
      *  }
      * )
      */
-    public function getDeviceAction(Request $request, Device $device)
+    public function getDeviceAction(Request $request, $guid)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $device = $em->getRepository('AppBundle:Device')->findOneById($device->getId());
+        $device = $em->getRepository('AppBundle:Device')->findOneBy(
+            array('guid' => $guid)
+        );
 
         $view = $this->view(array('Device' => $device), 201);
 
@@ -72,42 +74,114 @@ class DevicesController extends FOSRestController
     }
 
     /**
-     * Post register.
+     * Register a new device.
      *
      * @param Device $Device
      * @return \Symfony\Component\HttpFoundation\Response
-     * @Post("/devices/register")
+     * @View()
+     *
+     * @Post("/devices/{guid}/new")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Register device"
+     * )
      */
-    public function postRegisterDeviceAction(Request $request)
+    public function newDeviceAction(Request $request, $guid)
     {
-        $Device = new Device();
-        $Device->setGuid($request->get('guid'));
-        $Device->setStatus('OK');
+        $device = new Device();
+        $device->setGuid($guid);
+        $device->setStatus("OK");
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($Device);
+        $em->persist($device);
         $em->flush();
 
-        $view = $this->view(array('Device' => $Device), 201);
+        $view = $this->view(array(
+            'Status' => "Device correctly registered",
+            'Device' => $device), 201);
 
         return $this->handleView($view);
     }
 
     /**
-     * Post update.
+     * Desactivate single device.
      *
-     * @param integer $id
+     * @param device $Device
      * @return \Symfony\Component\HttpFoundation\Response
-     * @Post("/devices/{id}/update")
+     * @View()
+     * @Post("/devices/{guid}/desactivate")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Desactivate a single device",
+     *  requirements={
+     *      {
+     *          "name"="guid",
+     *          "dataType"="integer",
+     *          "requirement"="\d+",
+     *          "description"="Device guid"
+     *      }
+     *  },
+     *  parameters={
+     *
+     *  }
+     * )
      */
-    public function postUpdateDeviceAction(Request $request)
+    public function desactivateDeviceAction(Request $request, $guid)
     {
-        $Device = new Device();
-
         $em = $this->getDoctrine()->getManager();
+
+        $device = new Device($em->getRepository('AppBundle:Device')->findBy(
+            array('guid' => $guid)
+        ));
+        $device->setStatus("KO");
+
         $em->flush();
 
-        $view = $this->view(array('Device' => $Device), 201);
+        $view = $this->view(array('Device' => $device), 201);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Delete single device.
+     *
+     * @param device $Device
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     * @Post("/devices/{guid}/delete")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Delete a single device",
+     *  requirements={
+     *      {
+     *          "name"="guid",
+     *          "dataType"="integer",
+     *          "requirement"="\d+",
+     *          "description"="Device guid"
+     *      }
+     *  },
+     *  parameters={
+     *
+     *  }
+     * )
+     */
+    public function deleteDeviceAction(Request $request, $guid)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $device = new Device();
+        $device = $em->getRepository('AppBundle:Device')->findOneBy(
+            array('guid' => $guid)
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($device);
+        $em->flush();
+
+        $view = $this->view(array('Device' => $device), 201);
 
         return $this->handleView($view);
     }
