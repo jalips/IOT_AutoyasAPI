@@ -7,6 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -16,7 +18,7 @@ class UsersController extends FOSRestController
     /**
      * Get all users.
      *
-     * @return array
+     * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
      * @ApiDoc(
@@ -29,9 +31,9 @@ class UsersController extends FOSRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('AppBundle:User')->findAll();
+        $users = $em->getRepository('AppBundle:User')->findAll();
 
-        $view = $this->view(array('sensor' => $user), 201);
+        $view = $this->view(array('Users' => $users), 201);
 
         return $this->handleView($view);
     }
@@ -40,7 +42,7 @@ class UsersController extends FOSRestController
      * Get a single user.
      *
      * @param User $user
-     * @return array
+     * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      * @ParamConverter("user", class="AppBundle:User")
      *
@@ -56,6 +58,46 @@ class UsersController extends FOSRestController
         $user = $em->getRepository('AppBundle:User')->findOneById($user->getId());
 
         $view = $this->view(array('user' => $user), 201);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Delete single user.
+     *
+     * @param User $user
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     * @Post("/users/{id}/delete")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Delete a single user",
+     *  requirements={
+     *      {
+     *          "name"="id",
+     *          "dataType"="integer",
+     *          "requirement"="\d+",
+     *          "description"="User id"
+     *      }
+     *  },
+     *  parameters={
+     *
+     *  }
+     * )
+     */
+    public function deleteUserAction(Request $request, User $user)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $user = new User();
+        $user = $em->getRepository('AppBundle:Device')->findOneById($user);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($user);
+        $em->flush();
+
+        $view = $this->view(array('User' => $user), 201);
 
         return $this->handleView($view);
     }
