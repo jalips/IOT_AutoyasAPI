@@ -5,9 +5,9 @@ namespace AppBundle\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use AppBundle\Entity\User;
+use AppBundle\Entity\StatisticType;
 
-class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
+class LoadStatisticTypeData extends AbstractFixture implements OrderedFixtureInterface
 {
     /**
      * Load data fixtures with the passed EntityManager
@@ -16,27 +16,31 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        $toto = new User();
-        $toto->setUsername('toto');
-        $toto->setPassword('toto');
-        $toto->setEmail('toto@toto.org');
+        $toto = new StatisticType();
+        $toto->setName("Temperature");
 
-        $titi  = new User();
-        $titi->setUsername('titi');
-        $titi->setPassword('titi');
-        $titi->setEmail('titi@titi.org');
+        $titi  = new StatisticType();
+        $titi->setName("Humidité");
+
+        $tata  = new StatisticType();
+        $tata->setName("Remplissage pot");
 
         $manager->persist($toto);
         $manager->persist($titi);
+        $manager->persist($tata);
 
         $manager->flush();
+
+        $this->addReference('statistic-type-temperature', $toto);
+        $this->addReference('statistic-type-humidite', $titi);
+        $this->addReference('statistic-type-remplissage-pot', $tata);
     }
 
     public function getOrder()
     {
         // the order in which fixtures will be loaded
         // the lower the number, the sooner that this fixture is loaded
-        return 1;
+        return 3;
     }
 
 }

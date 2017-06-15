@@ -100,5 +100,10 @@ class Device
     {
         return $this->status;
     }
+
+    public function __toString()
+    {
+        return strval("device guid: " . $this->getGuid());
+    }
 }
 
