@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Symfony\Component\HttpFoundation\Request;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -68,7 +69,7 @@ class UsersController extends FOSRestController
      * @param User $user
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Post("/users/{id}/delete")
+     * @Delete("/users/{id}/delete")
      *
      * @ApiDoc(
      *  resource=true,
@@ -86,12 +87,11 @@ class UsersController extends FOSRestController
      *  }
      * )
      */
-    public function deleteUserAction(Request $request, User $user)
+    public function deleteUserAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $user = new User();
-        $user = $em->getRepository('AppBundle:Device')->findOneById($user);
+        $user = $em->getRepository('AppBundle:User')->findOneById($id);
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($user);

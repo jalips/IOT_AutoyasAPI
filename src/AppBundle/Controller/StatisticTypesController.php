@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,7 +110,7 @@ class StatisticTypesController extends FOSRestController
      * @param StatisticType $statisticType
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Post("/staticticType/{id}/delete")
+     * @Delete("/staticticType/{id}/delete")
      *
      * @ApiDoc(
      *  resource=true,
@@ -131,12 +132,8 @@ class StatisticTypesController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = new StatisticType();
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
-            array('id' => $id)
-        );
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneById($id);
 
-        $em = $this->getDoctrine()->getManager();
         $em->remove($statisticType);
         $em->flush();
 

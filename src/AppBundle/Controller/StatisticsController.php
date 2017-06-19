@@ -180,7 +180,7 @@ class StatisticsController extends FOSRestController
      * @param Statistic $statistic
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Post("/staticticType/{id}/delete")
+     * @Delete("/staticticType/{id}/delete")
      *
      * @ApiDoc(
      *  resource=true,
@@ -202,12 +202,8 @@ class StatisticsController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statistic = new Statistic();
-        $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array('id' => $id)
-        );
+        $statistic = $em->getRepository('AppBundle:Statistic')->findOneById($id);
 
-        $em = $this->getDoctrine()->getManager();
         $em->remove($statistic);
         $em->flush();
 

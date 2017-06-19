@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -150,7 +151,7 @@ class DevicesController extends FOSRestController
      * @param device $Device
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Post("/devices/{guid}/delete")
+     * @Delete("/devices/{guid}/delete")
      *
      * @ApiDoc(
      *  resource=true,
@@ -172,12 +173,10 @@ class DevicesController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $device = new Device();
         $device = $em->getRepository('AppBundle:Device')->findOneBy(
             array('guid' => $guid)
         );
 
-        $em = $this->getDoctrine()->getManager();
         $em->remove($device);
         $em->flush();
 
