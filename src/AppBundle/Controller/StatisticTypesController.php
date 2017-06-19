@@ -22,17 +22,19 @@ class StatisticTypesController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
+     * @Get("/statisticTypes")
+     *
      * @ApiDoc(
      *  resource=true,
      *  description="Get all statistic types"
      * )
      */
-    public function getStatisticTypesAction(Request $request)
+    public function getStatisticTypesAction()
     {
         $em = $this->getDoctrine()->getManager();
         $statisticTypes = $em->getRepository('AppBundle:StatisticType')->findAll();
 
-        $view = $this->view($statisticTypes, 201);
+        $view = $this->view($statisticTypes, 200);
 
         return $this->handleView($view);
     }
@@ -40,10 +42,11 @@ class StatisticTypesController extends FOSRestController
     /**
      * Get single statistic type.
      *
-     * @param StatisticType $statisticType
+     * @param int $id
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @ParamConverter("statistic_type", class="AppBundle:StatisticType")
+     *
+     * @Get("/statisticTypes/{id}")
      *
      * @ApiDoc(
      *  resource=true,
@@ -61,15 +64,13 @@ class StatisticTypesController extends FOSRestController
      *  }
      * )
      */
-    public function getStatisticTypeAction(Request $request, $id)
+    public function getStatisticTypeAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
-            array('id' => $id)
-        );
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneById($id);
 
-        $view = $this->view(array('statistic Type' => $statisticType), 201);
+        $view = $this->view(array('statistic Type' => $statisticType), 200);
 
         return $this->handleView($view);
     }
@@ -77,18 +78,18 @@ class StatisticTypesController extends FOSRestController
     /**
      * Register a new statistic type.
      *
-     * @param StatisticType $statisticType
+     * @param string $name
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/statisticType/{name}/new")
+     * @Post("/statisticTypes/{name}/new")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Register statistic type"
      * )
      */
-    public function newStatisticTypeAction(Request $request, $name)
+    public function newStatisticTypeAction($name)
     {
         $statisticType = new StatisticType();
         $statisticType->setName($name);
@@ -107,10 +108,11 @@ class StatisticTypesController extends FOSRestController
     /**
      * Delete single statistic type.
      *
-     * @param StatisticType $statisticType
+     * @param int $id
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Delete("/staticticType/{id}/delete")
+     *
+     * @Delete("/staticticTypes/{id}/delete")
      *
      * @ApiDoc(
      *  resource=true,
@@ -128,7 +130,7 @@ class StatisticTypesController extends FOSRestController
      *  }
      * )
      */
-    public function deleteStatisticTypeAction(Request $request, $id)
+    public function deleteStatisticTypeAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -137,7 +139,7 @@ class StatisticTypesController extends FOSRestController
         $em->remove($statisticType);
         $em->flush();
 
-        $view = $this->view(array('StatisticType' => $statisticType), 201);
+        $view = $this->view(array('StatisticType' => $statisticType), 202);
 
         return $this->handleView($view);
     }

@@ -22,12 +22,14 @@ class DevicesController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
+     * @Get("/devices")
+     *
      * @ApiDoc(
      *  resource=true,
      *  description="Get all devices"
      * )
      */
-    public function getDevicesAction(Request $request)
+    public function getDevicesAction()
     {
         $em = $this->getDoctrine()->getManager();
         $devices = $em->getRepository('AppBundle:Device')->findAll();
@@ -40,10 +42,11 @@ class DevicesController extends FOSRestController
     /**
      * Get single device.
      *
-     * @param device $Device
+     * @param int $guid
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @ParamConverter("device", class="AppBundle:Device")
+     *
+     * @Get("/devices/{guid}")
      *
      * @ApiDoc(
      *  resource=true,
@@ -55,13 +58,10 @@ class DevicesController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Device guid"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
-    public function getDeviceAction(Request $request, $guid)
+    public function getDeviceAction($guid)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -69,7 +69,7 @@ class DevicesController extends FOSRestController
             array('guid' => $guid)
         );
 
-        $view = $this->view(array('Device' => $device), 201);
+        $view = $this->view(array('Device' => $device), 200);
 
         return $this->handleView($view);
     }
@@ -77,7 +77,7 @@ class DevicesController extends FOSRestController
     /**
      * Register a new device.
      *
-     * @param Device $Device
+     * @param int $guid
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
@@ -88,7 +88,7 @@ class DevicesController extends FOSRestController
      *  description="Register device"
      * )
      */
-    public function newDeviceAction(Request $request, $guid)
+    public function newDeviceAction($guid)
     {
         $device = new Device();
         $device->setGuid($guid);
@@ -106,11 +106,50 @@ class DevicesController extends FOSRestController
     }
 
     /**
-     * Desactivate single device.
+     * Activate single device.
      *
-     * @param device $Device
+     * @param int $guid
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
+     *
+     * @Post("/devices/{guid}/activate")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Activate a single device",
+     *  requirements={
+     *      {
+     *          "name"="guid",
+     *          "dataType"="integer",
+     *          "requirement"="\d+",
+     *          "description"="Device guid"
+     *      }
+     *  }
+     * )
+     */
+    public function activateDeviceAction($guid)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $device = new Device($em->getRepository('AppBundle:Device')->findOneBy(
+            array('guid' => $guid)
+        ));
+        $device->setStatus("OK");
+
+        $em->flush();
+
+        $view = $this->view(array('Device' => $device), 202);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Desactivate single device.
+     *
+     * @param int $guid
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     *
      * @Post("/devices/{guid}/desactivate")
      *
      * @ApiDoc(
@@ -123,24 +162,21 @@ class DevicesController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Device guid"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
-    public function desactivateDeviceAction(Request $request, $guid)
+    public function desactivateDeviceAction($guid)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $device = new Device($em->getRepository('AppBundle:Device')->findBy(
+        $device = new Device($em->getRepository('AppBundle:Device')->findOneBy(
             array('guid' => $guid)
         ));
         $device->setStatus("KO");
 
         $em->flush();
 
-        $view = $this->view(array('Device' => $device), 201);
+        $view = $this->view(array('Device' => $device), 202);
 
         return $this->handleView($view);
     }
@@ -148,9 +184,10 @@ class DevicesController extends FOSRestController
     /**
      * Delete single device.
      *
-     * @param device $Device
+     * @param int $guid
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
+     *
      * @Delete("/devices/{guid}/delete")
      *
      * @ApiDoc(
@@ -163,13 +200,10 @@ class DevicesController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Device guid"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
-    public function deleteDeviceAction(Request $request, $guid)
+    public function deleteDeviceAction($guid)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -180,7 +214,7 @@ class DevicesController extends FOSRestController
         $em->remove($device);
         $em->flush();
 
-        $view = $this->view(array('Device' => $device), 201);
+        $view = $this->view(array('Device' => $device), 202);
 
         return $this->handleView($view);
     }

@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,17 +22,19 @@ class StatisticsController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
+     * @Get("/statistics")
+     *
      * @ApiDoc(
      *  resource=true,
      *  description="Get all statistics"
      * )
      */
-    public function getStatisticsAction(Request $request)
+    public function getStatisticsAction()
     {
         $em = $this->getDoctrine()->getManager();
         $statistics = $em->getRepository('AppBundle:Statistic')->findAll();
 
-        $view = $this->view($statistics, 201);
+        $view = $this->view($statistics, 200);
 
         return $this->handleView($view);
     }
@@ -44,28 +47,11 @@ class StatisticsController extends FOSRestController
      * @View()
      * @ParamConverter("statistic", class="AppBundle:Statistic")
      *
+     * @Get("/staticticTypes/{statistic_type}/{device}/{start_date}/{end_date}")
      * @ApiDoc(
      *  resource=true,
      *  description="Get a single statistic type",
      *  requirements={
-     *      {
-     *          "name"="start_date",
-     *          "dataType"="string",
-     *          "requirement"="\d+",
-     *          "description"="Statistic start date"
-     *      },
-     *      {
-     *          "name"="end_date",
-     *          "dataType"="string",
-     *          "requirement"="\d+",
-     *          "description"="Statistic end date"
-     *      },
-     *      {
-     *          "name"="data",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic data"
-     *      },
      *      {
      *          "name"="statistic type id",
      *          "dataType"="integer",
@@ -77,6 +63,18 @@ class StatisticsController extends FOSRestController
      *          "dataType"="integer",
      *          "requirement"="\d+",
      *          "description"="Statistic device id"
+     *      },
+     *     {
+     *          "name"="start_date",
+     *          "dataType"="string",
+     *          "requirement"="\d+",
+     *          "description"="Statistic start date"
+     *      },
+     *      {
+     *          "name"="end_date",
+     *          "dataType"="string",
+     *          "requirement"="\d+",
+     *          "description"="Statistic end date"
      *      }
      *  },
      *  parameters={
@@ -84,20 +82,19 @@ class StatisticsController extends FOSRestController
      *  }
      * )
      */
-    public function getStatisticAction(Request $request, $startDate, $endDate, $data, $statisticType, $device)
+    public function getStatisticAction($statisticType, $device, $startDate, $endDate)
     {
         $em = $this->getDoctrine()->getManager();
 
         $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
             array(  'startDate'     => $startDate,
                     'endDate'       => $endDate,
-                    'data'          => $data,
                     'statisticType' => $statisticType,
                     '$device'       => $device
                 )
         );
 
-        $view = $this->view(array('statistic' => $statistic), 201);
+        $view = $this->view(array('statistic' => $statistic), 200);
 
         return $this->handleView($view);
     }
@@ -110,7 +107,7 @@ class StatisticsController extends FOSRestController
      * @View()
      * @ParamConverter("statistic", class="AppBundle:Statistic")
      *
-     *
+     * @Get("/staticticTypes/{id}")
      * @ApiDoc(
      *  resource=true,
      *  description="Get a single statistic type by id",
@@ -127,7 +124,7 @@ class StatisticsController extends FOSRestController
      *  }
      * )
      */
-    public function getStatisticTypeByIdAction(Request $request, $id)
+    public function getStatisticTypeByIdAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -135,7 +132,7 @@ class StatisticsController extends FOSRestController
             array('id' => $id)
         );
 
-        $view = $this->view(array('statistic Type' => $statisticType), 201);
+        $view = $this->view(array('statistic Type' => $statisticType), 200);
 
         return $this->handleView($view);
     }
@@ -147,14 +144,14 @@ class StatisticsController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/statisticType/{start_date}/{end_date}/{data}/{statistic_type}/{device}/new")
+     * @Post("/statisticTypes/{statistic_type}/{device}/{start_date}/{end_date}/{data}/new")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Register statistic type"
      * )
      */
-    public function newStatisticTypeAction(Request $request, $startDate, $endDate, $data, $statisticType, $device)
+    public function newStatisticTypeAction($startDate, $endDate, $data, $statisticType, $device)
     {
         $statistic = new Statistic();
         $statistic->setStartDate($startDate);
@@ -180,8 +177,8 @@ class StatisticsController extends FOSRestController
      * @param Statistic $statistic
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @Delete("/staticticType/{id}/delete")
      *
+     * @Delete("/staticticTypes/{id}/delete")
      * @ApiDoc(
      *  resource=true,
      *  description="Delete a single statistic type",
@@ -198,7 +195,7 @@ class StatisticsController extends FOSRestController
      *  }
      * )
      */
-    public function deleteStatisticTypeAction(Request $request, $id)
+    public function deleteStatisticTypeAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -207,7 +204,7 @@ class StatisticsController extends FOSRestController
         $em->remove($statistic);
         $em->flush();
 
-        $view = $this->view(array('Statistic' => $statistic), 201);
+        $view = $this->view(array('Statistic' => $statistic), 202);
 
         return $this->handleView($view);
     }
