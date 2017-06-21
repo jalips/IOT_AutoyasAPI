@@ -17,8 +17,6 @@ use FOS\RestBundle\Controller\FOSRestController;
 
 class StatisticsController extends FOSRestController
 {
-    protected $format = "Y-m-d h:i:s";
-
     /**
      * Get all statistics.
      *
@@ -68,13 +66,13 @@ class StatisticsController extends FOSRestController
      *          "requirement"="\",
      *          "description"="Statistic device mac adress"
      *      },
-     *     {
+     *      {
      *          "name"="createdAt",
      *          "dataType"="string",
      *          "requirement"="\s",
      *          "description"="Statistic date of creation"
      *      }
-     *  }
+     *   }
      * )
      */
     public function getStatisticAction($statisticType, $device, $createdAt)
@@ -90,9 +88,9 @@ class StatisticsController extends FOSRestController
         );
 
         $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array(  'createdAt'     => DateTime::createFromFormat($this->format, $createdAt),
+            array(  'createdAt'     => new DateTime($createdAt),
                     'statisticType' => $fullStatisticType->getId(),
-                    '$device'       => $fullDevice->getId()
+                    'device'       => $fullDevice->getId()
                 )
         );
 
