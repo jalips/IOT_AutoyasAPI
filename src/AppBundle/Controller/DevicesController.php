@@ -51,7 +51,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
-     *  description="Get a single devices",
+     *  description="Get a single device",
      *  requirements={
      *      {
      *          "name"="macAdress",
