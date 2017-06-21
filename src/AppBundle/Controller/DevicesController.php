@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -34,7 +35,7 @@ class DevicesController extends FOSRestController
         $em = $this->getDoctrine()->getManager();
         $devices = $em->getRepository('AppBundle:Device')->findAll();
 
-        $view = $this->view($devices, 201);
+        $view = $this->view($devices, 200);
 
         return $this->handleView($view);
     }
@@ -42,32 +43,28 @@ class DevicesController extends FOSRestController
     /**
      * Get single device.
      *
-     * @param int $guid
+     * @param string $macAdress
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Get("/devices/{guid}")
+     * @Get("/devices/{macAdress}")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Get a single devices",
      *  requirements={
      *      {
-     *          "name"="guid",
-     *          "dataType"="integer",
+     *          "name"="macAdress",
+     *          "dataType"="string",
      *          "requirement"="\d+",
-     *          "description"="Device guid"
+     *          "description"="Device mac adress"
      *      }
      *  }
      * )
      */
-    public function getDeviceAction($guid)
+    public function getDeviceAction($macAdress)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $device = $em->getRepository('AppBundle:Device')->findOneBy(
-            array('guid' => $guid)
-        );
+        $device = $this->getDeviceByParam('macAdress', $macAdress);
 
         $view = $this->view(array('Device' => $device), 200);
 
@@ -77,26 +74,20 @@ class DevicesController extends FOSRestController
     /**
      * Register a new device.
      *
-     * @param int $guid
+     * @param int $macAdress
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/devices/{guid}/new")
+     * @Post("/devices/{macAdress}/new")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Register device"
      * )
      */
-    public function newDeviceAction($guid)
+    public function newDeviceAction($macAdress)
     {
-        $device = new Device();
-        $device->setGuid($guid);
-        $device->setStatus("OK");
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($device);
-        $em->flush();
+        $device = $this->registerDevice($macAdress);
 
         $view = $this->view(array(
             'Status' => "Device correctly registered",
@@ -106,35 +97,82 @@ class DevicesController extends FOSRestController
     }
 
     /**
-     * Activate single device.
+     * Get if device is alive and register it if not.
      *
-     * @param int $guid
+     * @param string $macAdress
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/devices/{guid}/activate")
+     * @Get("/devices/{macAdress}/isAlive")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  description="Check if a single device is active or not",
+     *  requirements={
+     *      {
+     *          "name"="macAdress",
+     *          "dataType"="string",
+     *          "requirement"="\d+",
+     *          "description"="Device mac adress"
+     *      }
+     *  }
+     * )
+     */
+    public function isDeviceAliveAction($macAdress)
+    {
+        $device = $this->getDeviceByParam('macAdress', $macAdress);
+
+        if(is_null($device)) {
+            $device = $this->registerDevice($macAdress);
+
+            $view = $this->view(array(
+                'Status' => "Device correctly registered",
+                'Device' => $device), 201);
+
+        } elseif ($device->getStatus()) {
+            $view = $this->view(array(
+                'Status' => "Device is alive",
+                'Device' => $device), 200);
+        } else {
+            $view = $this->view(array(
+                'Status' => "Device is desactivated",
+                'Device' => $device), 200);
+        }
+
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Activate single device.
+     *
+     * @param string $macAdress
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     *
+     * @Put("/devices/{macAdress}/activate")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Activate a single device",
      *  requirements={
      *      {
-     *          "name"="guid",
-     *          "dataType"="integer",
+     *          "name"="macAdress",
+     *          "dataType"="string",
      *          "requirement"="\d+",
-     *          "description"="Device guid"
+     *          "description"="Device mac adress"
      *      }
      *  }
      * )
      */
-    public function activateDeviceAction($guid)
+    public function activateDeviceAction($macAdress)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $device = new Device($em->getRepository('AppBundle:Device')->findOneBy(
-            array('guid' => $guid)
-        ));
-        $device->setStatus("OK");
+        $device = $em->getRepository('AppBundle:Device')->findOneBy(
+            array('macAdress' => $macAdress)
+        );
+        $device->setStatus(1);
 
         $em->flush();
 
@@ -146,33 +184,33 @@ class DevicesController extends FOSRestController
     /**
      * Desactivate single device.
      *
-     * @param int $guid
+     * @param string $macAdress
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/devices/{guid}/desactivate")
+     * @Put("/devices/{macAdress}/desactivate")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Desactivate a single device",
      *  requirements={
      *      {
-     *          "name"="guid",
-     *          "dataType"="integer",
+     *          "name"="macAdress",
+     *          "dataType"="string",
      *          "requirement"="\d+",
-     *          "description"="Device guid"
+     *          "description"="Device mac adress"
      *      }
      *  }
      * )
      */
-    public function desactivateDeviceAction($guid)
+    public function desactivateDeviceAction($macAdress)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $device = new Device($em->getRepository('AppBundle:Device')->findOneBy(
-            array('guid' => $guid)
-        ));
-        $device->setStatus("KO");
+        $device = $em->getRepository('AppBundle:Device')->findOneBy(
+            array('macAdress' => $macAdress)
+        );
+        $device->setStatus(0);
 
         $em->flush();
 
@@ -184,31 +222,31 @@ class DevicesController extends FOSRestController
     /**
      * Delete single device.
      *
-     * @param int $guid
+     * @param string $macAdress
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Delete("/devices/{guid}/delete")
+     * @Delete("/devices/{macAdress}/delete")
      *
      * @ApiDoc(
      *  resource=true,
      *  description="Delete a single device",
      *  requirements={
      *      {
-     *          "name"="guid",
-     *          "dataType"="integer",
+     *          "name"="macAdress",
+     *          "dataType"="string",
      *          "requirement"="\d+",
-     *          "description"="Device guid"
+     *          "description"="Device mac adress"
      *      }
      *  }
      * )
      */
-    public function deleteDeviceAction($guid)
+    public function deleteDeviceAction($macAdress)
     {
         $em = $this->getDoctrine()->getManager();
 
         $device = $em->getRepository('AppBundle:Device')->findOneBy(
-            array('guid' => $guid)
+            array('macAdress' => $macAdress)
         );
 
         $em->remove($device);
@@ -217,5 +255,42 @@ class DevicesController extends FOSRestController
         $view = $this->view(array('Device' => $device), 202);
 
         return $this->handleView($view);
+    }
+
+    /****************************************************** Methods **************************************************/
+
+    /**
+     * Get Device in database
+     *
+     * @param $key
+     * @param $value
+     * @return Device|null|object
+     */
+    protected function getDeviceByParam($key, $value) {
+        $em = $this->getDoctrine()->getManager();
+
+        $device = $em->getRepository('AppBundle:Device')->findOneBy(
+            array($key => $value)
+        );
+
+        return $device;
+    }
+
+    /**
+     * Register Device in database
+     *
+     * @param string $macAdress
+     * @return Device|null|object
+     */
+    protected function registerDevice($macAdress) {
+        $device = new Device();
+        $device->setMacAdress($macAdress);
+        $device->setStatus(1);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($device);
+        $em->flush();
+
+        return $device;
     }
 }

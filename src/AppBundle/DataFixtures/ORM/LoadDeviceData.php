@@ -17,11 +17,11 @@ class LoadDeviceData extends AbstractFixture implements OrderedFixtureInterface
     public function load(ObjectManager $manager)
     {
         $toto = new Device();
-        $toto->setGuid(123);
+        $toto->setMacAdress("5E:FF:56:A2:AF:15");
         $toto->setStatus(1);
 
         $titi  = new Device();
-        $titi->setGuid(456789);
+        $titi->setMacAdress("6E:FF:58:A3:AF:16");
         $titi->setStatus(1);
 
         $manager->persist($toto);

@@ -22,16 +22,16 @@ class Device
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="guid", type="integer")
-     */
-    private $guid;
-
-    /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string")
+     * @ORM\Column(name="mac_adress", type="string")
+     */
+    private $macAdress;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="status", type="boolean")
      */
     private $status;
 
@@ -54,27 +54,27 @@ class Device
     }
 
     /**
-     * Set guid
+     * Set mac adress
      *
-     * @param integer $guid
+     * @param string $macAdress
      *
      * @return Device
      */
-    public function setGuid($guid)
+    public function setMacAdress($macAdress)
     {
-        $this->guid = $guid;
+        $this->macAdress = $macAdress;
 
         return $this;
     }
 
     /**
-     * Get guid
+     * Get mac adress
      *
-     * @return integer
+     * @return string
      */
-    public function getGuid()
+    public function getMacAdress()
     {
-        return $this->guid;
+        return $this->macAdress;
     }
 
     /**
@@ -103,7 +103,7 @@ class Device
 
     public function __toString()
     {
-        return strval("device guid: " . $this->getGuid());
+        return strval("device mac adress :" . $this->getMacAdress());
     }
 }
 

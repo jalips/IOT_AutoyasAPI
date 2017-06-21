@@ -76,9 +76,6 @@ class StatisticsController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Statistic end date"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
@@ -107,7 +104,7 @@ class StatisticsController extends FOSRestController
      * @View()
      * @ParamConverter("statistic", class="AppBundle:Statistic")
      *
-     * @Get("/staticticTypes/{id}")
+     * @Get("/statictic/{id}")
      * @ApiDoc(
      *  resource=true,
      *  description="Get a single statistic type by id",
@@ -116,7 +113,7 @@ class StatisticsController extends FOSRestController
      *          "name"="id",
      *          "dataType"="integer",
      *          "requirement"="\d+",
-     *          "description"="Statistic type id"
+     *          "description"="Statistic id"
      *      }
      *  },
      *  parameters={
@@ -124,7 +121,7 @@ class StatisticsController extends FOSRestController
      *  }
      * )
      */
-    public function getStatisticTypeByIdAction($id)
+    public function getStatisticByIdAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
