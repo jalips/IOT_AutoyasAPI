@@ -17,13 +17,13 @@ class LoadStatisticTypeData extends AbstractFixture implements OrderedFixtureInt
     public function load(ObjectManager $manager)
     {
         $toto = new StatisticType();
-        $toto->setName("Temperature");
+        $toto->setName("temp");
 
         $titi  = new StatisticType();
-        $titi->setName("Humidité");
+        $titi->setName("hydro");
 
         $tata  = new StatisticType();
-        $tata->setName("Remplissage pot");
+        $tata->setName("valve");
 
         $manager->persist($toto);
         $manager->persist($titi);
@@ -31,9 +31,9 @@ class LoadStatisticTypeData extends AbstractFixture implements OrderedFixtureInt
 
         $manager->flush();
 
-        $this->addReference('statistic-type-temperature', $toto);
-        $this->addReference('statistic-type-humidite', $titi);
-        $this->addReference('statistic-type-remplissage-pot', $tata);
+        $this->addReference('statistic-type-temp', $toto);
+        $this->addReference('statistic-type-hydro', $titi);
+        $this->addReference('statistic-type-valve', $tata);
     }
 
     public function getOrder()

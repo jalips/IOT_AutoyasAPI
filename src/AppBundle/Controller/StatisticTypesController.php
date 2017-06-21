@@ -58,9 +58,6 @@ class StatisticTypesController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Statistic type id"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
@@ -68,7 +65,9 @@ class StatisticTypesController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneById($id);
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
+            array('id' => $id)
+        );
 
         $view = $this->view(array('statistic Type' => $statisticType), 200);
 
@@ -86,7 +85,15 @@ class StatisticTypesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
-     *  description="Register statistic type"
+     *  description="Register statistic type",
+     *     requirements={
+     *      {
+     *          "name"="name",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="Statistic type name"
+     *      }
+     *  }
      * )
      */
     public function newStatisticTypeAction($name)
@@ -124,9 +131,6 @@ class StatisticTypesController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Statistic type id"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
@@ -134,7 +138,9 @@ class StatisticTypesController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneById($id);
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
+            array('id' => $id)
+        );
 
         $em->remove($statisticType);
         $em->flush();

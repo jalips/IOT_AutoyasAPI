@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -31,16 +32,9 @@ class Statistic
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="start_date", type="string")
+     * @ORM\Column(name="created_at", type="datetime")
      */
-    private $startDate;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="end_date", type="string")
-     */
-    private $endDate;
+    private $createdAt;
 
     /**
      * @var \AppBundle\Entity\StatisticType
@@ -64,6 +58,7 @@ class Statistic
      */
     public function __construct()
     {
+        $this->setCreatedAt(new DateTime());
     }
 
     /**
@@ -72,6 +67,14 @@ class Statistic
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
     /**
@@ -91,39 +94,23 @@ class Statistic
     }
 
     /**
-     * @return string
+     * @return \DateTime
      */
-    public function getStartDate()
+    public function getCreatedAt()
     {
-        return $this->startDate;
+        return $this->createdAt;
     }
 
     /**
-     * @param string $startDate
+     * @param \DateTime $date
      */
-    public function setStartDate($startDate)
+    public function setCreatedAt($date)
     {
-        $this->startDate = $startDate;
+        $this->createdAt = $date;
     }
 
     /**
-     * @return string
-     */
-    public function getEndDate()
-    {
-        return $this->endDate;
-    }
-
-    /**
-     * @param string $endDate
-     */
-    public function setEndDate($endDate)
-    {
-        $this->endDate = $endDate;
-    }
-
-    /**
-     * @return \AppBundle\Entity\StatisticType
+     * @return StatisticType
      */
     public function getStatisticType()
     {
@@ -131,7 +118,7 @@ class Statistic
     }
 
     /**
-     * @param \AppBundle\Entity\StatisticType $statisticType
+     * @param StatisticType $statisticType
      */
     public function setStatisticType($statisticType)
     {
@@ -139,7 +126,7 @@ class Statistic
     }
 
     /**
-     * @return \AppBundle\Entity\Device
+     * @return Device
      */
     public function getDevice()
     {
@@ -147,7 +134,7 @@ class Statistic
     }
 
     /**
-     * @param \AppBundle\Entity\Device $deviceId
+     * @param Device $device
      */
     public function setDevice($device)
     {

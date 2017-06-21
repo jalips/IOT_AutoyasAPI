@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Statistic;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -16,6 +17,8 @@ use FOS\RestBundle\Controller\FOSRestController;
 
 class StatisticsController extends FOSRestController
 {
+    protected $format = "Y-m-d h:i:s";
+
     /**
      * Get all statistics.
      *
@@ -42,52 +45,54 @@ class StatisticsController extends FOSRestController
     /**
      * Get single statistic.
      *
-     * @param Statistic $statistic
+     * @param string $statisticType
+     * @param string $device
+     * @param string $createdAt
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @ParamConverter("statistic", class="AppBundle:Statistic")
      *
-     * @Get("/staticticTypes/{statistic_type}/{device}/{start_date}/{end_date}")
+     * @Get("/statictics/{statisticType}/{device}/{createdAt}")
      * @ApiDoc(
      *  resource=true,
-     *  description="Get a single statistic type",
+     *  description="Get a single statistic",
      *  requirements={
      *      {
-     *          "name"="statistic type id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic type id"
+     *          "name"="statisticType",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="Statistic type name"
      *      },
      *      {
-     *          "name"="device id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic device id"
+     *          "name"="device",
+     *          "dataType"="string",
+     *          "requirement"="\",
+     *          "description"="Statistic device mac adress"
      *      },
      *     {
-     *          "name"="start_date",
+     *          "name"="createdAt",
      *          "dataType"="string",
-     *          "requirement"="\d+",
-     *          "description"="Statistic start date"
-     *      },
-     *      {
-     *          "name"="end_date",
-     *          "dataType"="string",
-     *          "requirement"="\d+",
-     *          "description"="Statistic end date"
+     *          "requirement"="\s",
+     *          "description"="Statistic date of creation"
      *      }
      *  }
      * )
      */
-    public function getStatisticAction($statisticType, $device, $startDate, $endDate)
+    public function getStatisticAction($statisticType, $device, $createdAt)
     {
         $em = $this->getDoctrine()->getManager();
 
+        $fullStatisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
+            array('name' => $statisticType)
+        );
+
+        $fullDevice = $em->getRepository('AppBundle:Device')->findOneBy(
+            array('macAdress' => $device)
+        );
+
         $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array(  'startDate'     => $startDate,
-                    'endDate'       => $endDate,
-                    'statisticType' => $statisticType,
-                    '$device'       => $device
+            array(  'createdAt'     => DateTime::createFromFormat($this->format, $createdAt),
+                    'statisticType' => $fullStatisticType->getId(),
+                    '$device'       => $fullDevice->getId()
                 )
         );
 
@@ -99,15 +104,14 @@ class StatisticsController extends FOSRestController
     /**
      * Get single statistic by id.
      *
-     * @param Statistic $statistic
+     * @param int $id
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
-     * @ParamConverter("statistic", class="AppBundle:Statistic")
      *
-     * @Get("/statictic/{id}")
+     * @Get("/statictics/{id}")
      * @ApiDoc(
      *  resource=true,
-     *  description="Get a single statistic type by id",
+     *  description="Get a single statistic by id",
      *  requirements={
      *      {
      *          "name"="id",
@@ -115,9 +119,6 @@ class StatisticsController extends FOSRestController
      *          "requirement"="\d+",
      *          "description"="Statistic id"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
@@ -125,11 +126,11 @@ class StatisticsController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
+        $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
             array('id' => $id)
         );
 
-        $view = $this->view(array('statistic Type' => $statisticType), 200);
+        $view = $this->view(array('statistic' => $statistic), 200);
 
         return $this->handleView($view);
     }
@@ -137,27 +138,49 @@ class StatisticsController extends FOSRestController
     /**
      * Register a new statistic.
      *
-     * @param Statistic $statistic
+     * @param string $data
+     * @param string $statisticType
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/statisticTypes/{statistic_type}/{device}/{start_date}/{end_date}/{data}/new")
+     * @Post("/statistics/{data}/{statisticType}/new")
      *
      * @ApiDoc(
      *  resource=true,
-     *  description="Register statistic type"
+     *  description="Insert new statistic",
+     *  requirements={
+     *      {
+     *          "name"="data",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="Statistic data"
+     *      },
+     *      {
+     *          "name"="statisticType",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="Statistic type name"
+     *      }
+     *  }
      * )
      */
-    public function newStatisticTypeAction($startDate, $endDate, $data, $statisticType, $device)
+    public function newStatisticAction($data, $statisticType)
     {
-        $statistic = new Statistic();
-        $statistic->setStartDate($startDate);
-        $statistic->setEndDate($endDate);
-        $statistic->setData($data);
-        $statistic->setStatisticType($statisticType);
-        $statistic->setDevice($device);
-
         $em = $this->getDoctrine()->getManager();
+
+        $datas = explode("***", $data);
+        $device = $datas[0];
+        $value = intval($datas[1]);
+
+        $statistic = new Statistic();
+        $statistic->setData($value);
+        $statistic->setStatisticType($em->getRepository('AppBundle:StatisticType')->findOneBy(
+            array('name' => $statisticType)
+        ));
+        $statistic->setDevice($em->getRepository('AppBundle:Device')->findOneBy(
+            array('macAdress' => $device)
+        ));
+
         $em->persist($statistic);
         $em->flush();
 
@@ -171,32 +194,31 @@ class StatisticsController extends FOSRestController
     /**
      * Delete single statistic.
      *
-     * @param Statistic $statistic
+     * @param int $id
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Delete("/staticticTypes/{id}/delete")
+     * @Delete("/statictic/{id}/delete")
      * @ApiDoc(
      *  resource=true,
-     *  description="Delete a single statistic type",
+     *  description="Delete a single statistic",
      *  requirements={
      *      {
      *          "name"="id",
      *          "dataType"="integer",
      *          "requirement"="\d+",
-     *          "description"="Statistic type id"
+     *          "description"="Statistic id"
      *      }
-     *  },
-     *  parameters={
-     *
      *  }
      * )
      */
-    public function deleteStatisticTypeAction($id)
+    public function deleteStatisticAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statistic = $em->getRepository('AppBundle:Statistic')->findOneById($id);
+        $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
+            array('id' => $id)
+        );
 
         $em->remove($statistic);
         $em->flush();

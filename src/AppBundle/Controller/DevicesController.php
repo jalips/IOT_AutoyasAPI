@@ -56,7 +56,7 @@ class DevicesController extends FOSRestController
      *      {
      *          "name"="macAdress",
      *          "dataType"="string",
-     *          "requirement"="\d+",
+     *          "requirement"="\s",
      *          "description"="Device mac adress"
      *      }
      *  }
@@ -82,7 +82,15 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
-     *  description="Register device"
+     *  description="Register device",
+     *     requirements={
+     *      {
+     *          "name"="macAdress",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="Device mac adress"
+     *      }
+     *  }
      * )
      */
     public function newDeviceAction($macAdress)
@@ -112,7 +120,7 @@ class DevicesController extends FOSRestController
      *      {
      *          "name"="macAdress",
      *          "dataType"="string",
-     *          "requirement"="\d+",
+     *          "requirement"="\s",
      *          "description"="Device mac adress"
      *      }
      *  }
@@ -159,7 +167,7 @@ class DevicesController extends FOSRestController
      *      {
      *          "name"="macAdress",
      *          "dataType"="string",
-     *          "requirement"="\d+",
+     *          "requirement"="\s",
      *          "description"="Device mac adress"
      *      }
      *  }
@@ -197,7 +205,7 @@ class DevicesController extends FOSRestController
      *      {
      *          "name"="macAdress",
      *          "dataType"="string",
-     *          "requirement"="\d+",
+     *          "requirement"="\s",
      *          "description"="Device mac adress"
      *      }
      *  }
@@ -235,7 +243,7 @@ class DevicesController extends FOSRestController
      *      {
      *          "name"="macAdress",
      *          "dataType"="string",
-     *          "requirement"="\d+",
+     *          "requirement"="\s",
      *          "description"="Device mac adress"
      *      }
      *  }
