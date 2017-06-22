@@ -26,6 +26,7 @@ class StatisticTypesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="StatisticTypes",
      *  description="Get all statistic types"
      * )
      */
@@ -50,6 +51,7 @@ class StatisticTypesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="StatisticTypes",
      *  description="Get a single statistic type",
      *  requirements={
      *      {
@@ -85,6 +87,7 @@ class StatisticTypesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="StatisticTypes",
      *  description="Register statistic type",
      *     requirements={
      *      {
@@ -123,6 +126,7 @@ class StatisticTypesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="StatisticTypes",
      *  description="Delete a single statistic type",
      *  requirements={
      *      {

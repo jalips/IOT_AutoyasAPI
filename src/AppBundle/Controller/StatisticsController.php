@@ -27,6 +27,7 @@ class StatisticsController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Statistics",
      *  description="Get all statistics"
      * )
      */
@@ -52,6 +53,7 @@ class StatisticsController extends FOSRestController
      * @Get("/statictics/{statisticType}/{device}/{createdAt}")
      * @ApiDoc(
      *  resource=true,
+     *  section="Statistics",
      *  description="Get a single statistic",
      *  requirements={
      *      {
@@ -109,6 +111,7 @@ class StatisticsController extends FOSRestController
      * @Get("/statictics/{id}")
      * @ApiDoc(
      *  resource=true,
+     *  section="Statistics",
      *  description="Get a single statistic by id",
      *  requirements={
      *      {
@@ -145,6 +148,7 @@ class StatisticsController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Statistics",
      *  description="Insert new statistic",
      *  requirements={
      *      {
@@ -199,6 +203,7 @@ class StatisticsController extends FOSRestController
      * @Delete("/statictic/{id}/delete")
      * @ApiDoc(
      *  resource=true,
+     *  section="Statistics",
      *  description="Delete a single statistic",
      *  requirements={
      *      {

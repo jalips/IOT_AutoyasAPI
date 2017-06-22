@@ -26,6 +26,7 @@ class UsersController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Users",
      *  description="Get all users",
      * )
      */
@@ -52,6 +53,7 @@ class UsersController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Users",
      *  description="Get a single user",
      * )
      */
@@ -79,6 +81,7 @@ class UsersController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Users",
      *  description="Register user"
      * )
      */
@@ -111,6 +114,7 @@ class UsersController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Users",
      *  description="Delete a single user",
      *  requirements={
      *      {

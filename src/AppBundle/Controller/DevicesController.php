@@ -27,6 +27,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Get all devices"
      * )
      */
@@ -51,6 +52,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Get a single device",
      *  requirements={
      *      {
@@ -82,6 +84,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Register device",
      *     requirements={
      *      {
@@ -115,6 +118,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Check if a single device is active or not",
      *  requirements={
      *      {
@@ -162,6 +166,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Activate a single device",
      *  requirements={
      *      {
@@ -200,6 +205,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Desactivate a single device",
      *  requirements={
      *      {
@@ -238,6 +244,7 @@ class DevicesController extends FOSRestController
      *
      * @ApiDoc(
      *  resource=true,
+     *  section="Devices",
      *  description="Delete a single device",
      *  requirements={
      *      {
