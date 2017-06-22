@@ -42,6 +42,38 @@ class DevicesController extends FOSRestController
     }
 
     /**
+     * Get all devices by user.
+     *
+     * @param int $userId
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     *
+     * @Get("/devices/user/{userId}")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  section="Devices",
+     *  description="Get all devices",
+     *  requirements={
+     *      {
+     *          "name"="userId",
+     *          "dataType"="int",
+     *          "requirement"="\d",
+     *          "description"="User id"
+     *       }
+     *  }
+     * )
+     */
+    public function getDevicesByUserAction($userId)
+    {
+        $devices = $this->getDevicesByParam(array('user' => $userId));
+
+        $view = $this->view($devices, 200);
+
+        return $this->handleView($view);
+    }
+
+    /**
      * Get single device.
      *
      * @param string $macAdress
@@ -80,7 +112,7 @@ class DevicesController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/devices/{macAdress}/new")
+     * @Post("/devices/{macAdress}/{userId}/new")
      *
      * @ApiDoc(
      *  resource=true,
@@ -92,13 +124,19 @@ class DevicesController extends FOSRestController
      *          "dataType"="string",
      *          "requirement"="\s",
      *          "description"="Device mac adress"
+     *      },
+     *      {
+     *          "name"="userId",
+     *          "dataType"="int",
+     *          "requirement"="\s",
+     *          "description"="User id"
      *      }
      *  }
      * )
      */
-    public function newDeviceAction($macAdress)
+    public function newDeviceAction($macAdress, $userId)
     {
-        $device = $this->registerDevice($macAdress);
+        $device = $this->registerDevice($macAdress, $userId);
 
         $view = $this->view(array(
             'Status' => "Device correctly registered",
@@ -135,7 +173,7 @@ class DevicesController extends FOSRestController
         $device = $this->getDeviceByParam('macAdress', $macAdress);
 
         if(is_null($device)) {
-            $device = $this->registerDevice($macAdress);
+            $device = $this->registerDevice(array('macAdress' => $macAdress));
 
             $view = $this->view(array(
                 'Status' => "Device correctly registered",
@@ -275,6 +313,23 @@ class DevicesController extends FOSRestController
     /****************************************************** Methods **************************************************/
 
     /**
+     * Get Devices in database
+     *
+     * @param $key
+     * @param $value
+     * @return Device|null|object
+     */
+    protected function getDevicesByParam($args) {
+        $em = $this->getDoctrine()->getManager();
+
+        $devices = $em->getRepository('AppBundle:Device')->findBy(
+            $args
+        );
+
+        return $devices;
+    }
+
+    /**
      * Get Device in database
      *
      * @param $key
@@ -294,15 +349,28 @@ class DevicesController extends FOSRestController
     /**
      * Register Device in database
      *
-     * @param string $macAdress
+     * @param array $args
      * @return Device|null|object
      */
-    protected function registerDevice($macAdress) {
+    protected function registerDevice($args) {
+        $em = $this->getDoctrine()->getManager();
+
         $device = new Device();
-        $device->setMacAdress($macAdress);
+
+        foreach($args as $key => $value) {
+            if($key == "userId") {
+                $fullUser = $em->getRepository('AppBundle:User')->findOneBy(
+                array('id' => $value)
+                );
+
+                $device->setUser($fullUser);
+            } elseif ($key == "macAdress") {
+                $device->setMacAdress($value);
+            }
+        }
+
         $device->setStatus(1);
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($device);
         $em->flush();
 

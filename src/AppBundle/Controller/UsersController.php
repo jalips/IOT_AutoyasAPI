@@ -77,12 +77,32 @@ class UsersController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Post("/users/{username}/new")
+     * @Post("/users/{username}/{email}/{password}/new")
      *
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Register user"
+     *  description="Register user",
+     *  requirements={
+     *      {
+     *          "name"="username",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="User name"
+     *      },
+     *      {
+     *          "name"="email",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="User email"
+     *      },
+     *      {
+     *          "name"="password",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="User password"
+     *      }
+     *  }
      * )
      */
     public function registerUserAction($username, $email, $password)
@@ -91,6 +111,9 @@ class UsersController extends FOSRestController
         $user->setUsername($username);
         $user->setEmail($email);
         $user->setPassword($password);
+        $user->setEnabled(true);
+
+        $userManager = $this->get('fos_user.user_manager');
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);

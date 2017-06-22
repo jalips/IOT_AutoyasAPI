@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,11 +23,19 @@ class User extends BaseUser
      */
     protected $id;
 
+    /**
+     * @var \AppBundle\Entity\Device
+     *
+     * @ORM\OneToMany(targetEntity="Device", mappedBy="user")
+     */
+    private $devices;
 
     public function __construct()
     {
         parent::__construct();
         // your own logic
+
+        $this->devices = new ArrayCollection();
     }
 
 
@@ -38,6 +47,22 @@ class User extends BaseUser
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return Device
+     */
+    public function getDevices()
+    {
+        return $this->devices;
+    }
+
+    /**
+     * @param Device $devices
+     */
+    public function setDevices($devices)
+    {
+        $this->devices = $devices;
     }
 }
 

@@ -36,6 +36,15 @@ class Device
     private $status;
 
     /**
+     * @var \AppBundle\Entity\User
+     *
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="devices")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
+
+    /**
      * Device constructor.
      */
     public function __construct()
@@ -99,6 +108,22 @@ class Device
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     public function __toString()
