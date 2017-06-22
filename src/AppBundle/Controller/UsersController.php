@@ -121,7 +121,65 @@ class UsersController extends FOSRestController
 
         $view = $this->view(array(
             'Status' => "User correctly registered",
-            'Device' => $user), 201);
+            'User' => $user), 201);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Register a new user.
+     *
+     * @param string $email
+     * @param string $password
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     *
+     * @Post("/users/login/{email}/{password}")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  section="Users",
+     *  description="Register user",
+     *  requirements={
+     *      {
+     *          "name"="username",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="User name"
+     *      },
+     *      {
+     *          "name"="password",
+     *          "dataType"="string",
+     *          "requirement"="\s",
+     *          "description"="User password"
+     *      }
+     *  }
+     * )
+     */
+    public function loginUserAction(Request $request, $username, $password)
+    {
+        $user_manager = $this->get('fos_user.user_manager');
+        $factory = $this->get('security.encoder_factory');
+
+        $user = $user_manager->findUserByUsername($username);
+
+        if($user === null){
+            return new JsonResponse(array('statut' => 0, 'message' => 'User not found.'), 422);
+        }
+
+        $encoder = $factory->getEncoder($user);
+        $auth = ($encoder->isPasswordValid($user->getPassword(),$password,$user->getSalt())) ? "true" : "false";
+
+        if($auth){
+            $providerKey = $this->getParameter('fos_user.firewall_name');
+            $token = new UsernamePasswordToken($username, $password, $providerKey, $user->getRoles());
+            $this->get("security.token_storage")->setToken($token);
+            $event = new InteractiveLoginEvent($request, $token);
+            $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+        }
+
+        $view = $this->view(array(
+            'Status' => $auth), 200);
 
         return $this->handleView($view);
     }
