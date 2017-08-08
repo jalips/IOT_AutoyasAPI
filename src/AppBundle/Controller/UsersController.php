@@ -13,6 +13,8 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use Symfony\Component\HttpFoundation\Request;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class UsersController extends FOSRestController
 {
@@ -105,19 +107,19 @@ class UsersController extends FOSRestController
      *  }
      * )
      */
-    public function registerUserAction($username, $email, $password)
+    public function registerUserAction(Request $request)
     {
-        $user = new User();
-        $user->setUsername($username);
-        $user->setEmail($email);
-        $user->setPassword($password);
+        $userManager = $this->get('fos_user.user_manager');
+        $entityManager = $this->get('doctrine')->getManager();
+        $data = $request->attributes->all();
+
+        $user = $userManager->createUser();
+        $user->setUsername($data['username']);
+        $user->setEmail($data['email']);
+        $user->setPlainPassword($data['password']);
         $user->setEnabled(true);
 
-        $userManager = $this->get('fos_user.user_manager');
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+        $userManager->updateUser($user);
 
         $view = $this->view(array(
             'Status' => "User correctly registered",
@@ -164,11 +166,14 @@ class UsersController extends FOSRestController
         $user = $user_manager->findUserByUsername($username);
 
         if($user === null){
-            return new JsonResponse(array('statut' => 0, 'message' => 'User not found.'), 422);
+            $view = $this->view(array(
+                'Status' => false), 200);
+
+            return $this->handleView($view);
         }
 
         $encoder = $factory->getEncoder($user);
-        $auth = ($encoder->isPasswordValid($user->getPassword(),$password,$user->getSalt())) ? "true" : "false";
+        $auth = ($encoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) ? "true" : "false";
 
         if($auth){
             $providerKey = $this->getParameter('fos_user.firewall_name');

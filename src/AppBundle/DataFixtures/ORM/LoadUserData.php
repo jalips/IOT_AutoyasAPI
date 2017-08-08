@@ -18,13 +18,13 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
     {
         $toto = new User();
         $toto->setUsername('toto');
-        $toto->setPassword('toto');
         $toto->setEmail('toto@toto.org');
+        $toto->setPlainPassword('toto');
 
         $titi  = new User();
         $titi->setUsername('titi');
-        $titi->setPassword('titi');
         $titi->setEmail('titi@titi.org');
+        $titi->setPlainPassword('titi');
 
         $manager->persist($toto);
         $manager->persist($titi);
