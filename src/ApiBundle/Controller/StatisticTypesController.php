@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Controller;
+namespace ApiBundle\Controller;
 
 use AppBundle\Entity\StatisticType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -34,8 +34,13 @@ class StatisticTypesController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
         $statisticTypes = $em->getRepository('AppBundle:StatisticType')->findAll();
+        $total = count($statisticTypes);
 
-        $view = $this->view($statisticTypes, 200);
+        $view = $this->view(
+            array(
+                'Total'             => $total,
+                'Statistic Types'   => $statisticTypes
+            ), 200);
 
         return $this->handleView($view);
     }
@@ -52,26 +57,16 @@ class StatisticTypesController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="StatisticTypes",
-     *  description="Get a single statistic type",
-     *  requirements={
-     *      {
-     *          "name"="id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic type id"
-     *      }
-     *  }
+     *  description="Get a single statistic type"
      * )
      */
     public function getStatisticTypeAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
-            array('id' => $id)
-        );
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->find($id);
 
-        $view = $this->view(array('statistic Type' => $statisticType), 200);
+        $view = $this->view($statisticType, 200);
 
         return $this->handleView($view);
     }
@@ -88,15 +83,7 @@ class StatisticTypesController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="StatisticTypes",
-     *  description="Register statistic type",
-     *     requirements={
-     *      {
-     *          "name"="name",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="Statistic type name"
-     *      }
-     *  }
+     *  description="Register statistic type"
      * )
      */
     public function newStatisticTypeAction($name)
@@ -108,9 +95,7 @@ class StatisticTypesController extends FOSRestController
         $em->persist($statisticType);
         $em->flush();
 
-        $view = $this->view(array(
-            'Status' => "Statistic Type correctly registered",
-            'Device' => $statisticType), 201);
+        $view = $this->view($statisticType, 201);
 
         return $this->handleView($view);
     }
@@ -127,29 +112,19 @@ class StatisticTypesController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="StatisticTypes",
-     *  description="Delete a single statistic type",
-     *  requirements={
-     *      {
-     *          "name"="id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic type id"
-     *      }
-     *  }
+     *  description="Delete a single statistic type"
      * )
      */
     public function deleteStatisticTypeAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statisticType = $em->getRepository('AppBundle:StatisticType')->findOneBy(
-            array('id' => $id)
-        );
+        $statisticType = $em->getRepository('AppBundle:StatisticType')->find($id);
 
         $em->remove($statisticType);
         $em->flush();
 
-        $view = $this->view(array('StatisticType' => $statisticType), 202);
+        $view = $this->view($statisticType, 202);
 
         return $this->handleView($view);
     }

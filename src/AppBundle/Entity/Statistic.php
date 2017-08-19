@@ -3,12 +3,13 @@
 namespace AppBundle\Entity;
 
 use DateTime;
+use JMS\Serializer\Annotation\Type;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Statistic
  *
- * @ORM\Table(name="statistic")
+ * @ORM\Table(name="statistic", uniqueConstraints={@ORM\UniqueConstraint(name="id_UNIQUE", columns={"id"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\StatisticRepository")
  */
 class Statistic
@@ -19,6 +20,7 @@ class Statistic
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Type("integer")
      */
     private $id;
 
@@ -26,6 +28,7 @@ class Statistic
      * @var int
      *
      * @ORM\Column(name="data", type="integer")
+     * @Type("integer")
      */
     private $data;
 
@@ -33,6 +36,7 @@ class Statistic
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
+     * @Type("DateTime<'Y-m-d H:i:s'>")
      */
     private $createdAt;
 
@@ -41,6 +45,7 @@ class Statistic
      *
      * @ORM\ManyToOne(targetEntity="StatisticType", inversedBy="statistictypes")
      * @ORM\JoinColumn(name="statistic_type_id", referencedColumnName="id")
+     * @Type("AppBundle\Entity\StatisticType")
      */
     private $statisticType;
 
@@ -49,6 +54,7 @@ class Statistic
      *
      * @ORM\ManyToOne(targetEntity="Device", inversedBy="devices")
      * @ORM\JoinColumn(name="device_id", referencedColumnName="id")
+     * @Type("AppBundle\Entity\Device")
      */
     private $device;
 

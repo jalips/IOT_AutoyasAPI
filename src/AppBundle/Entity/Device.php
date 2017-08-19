@@ -2,12 +2,13 @@
 
 namespace AppBundle\Entity;
 
+use JMS\Serializer\Annotation\Type;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Device
  *
- * @ORM\Table(name="device")
+ * @ORM\Table(name="device", uniqueConstraints={@ORM\UniqueConstraint(name="id_UNIQUE", columns={"id"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\DeviceRepository")
  */
 class Device
@@ -18,13 +19,15 @@ class Device
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Type("integer")
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="mac_adress", type="string")
+     * @ORM\Column(name="mac_adress", type="string", unique=true)
+     * @Type("string")
      */
     private $macAdress;
 
@@ -32,6 +35,7 @@ class Device
      * @var bool
      *
      * @ORM\Column(name="status", type="boolean")
+     * @Type("boolean")
      */
     private $status;
 
@@ -40,17 +44,9 @@ class Device
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="devices")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @Type("AppBundle\Entity\User")
      */
     private $user;
-
-
-    /**
-     * Device constructor.
-     */
-    public function __construct()
-    {
-    }
-
 
     /**
      * Get id
@@ -60,6 +56,14 @@ class Device
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
     /**

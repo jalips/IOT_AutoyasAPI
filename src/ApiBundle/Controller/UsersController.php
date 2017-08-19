@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Controller;
+namespace ApiBundle\Controller;
 
 use AppBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -29,17 +29,21 @@ class UsersController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Get all users",
+     *  description="Get all users"
      * )
      */
     public function getUsersAction()
     {
-
         $em = $this->getDoctrine()->getManager();
 
         $users = $em->getRepository('AppBundle:User')->findAll();
+        $total = count($users);
 
-        $view = $this->view(array('Users' => $users), 200);
+        $view = $this->view(
+            array(
+                'Total' => $total,
+                'Users' => $users
+            ), 200);
 
         return $this->handleView($view);
     }
@@ -56,7 +60,7 @@ class UsersController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Get a single user",
+     *  description="Get a single user"
      * )
      */
     public function getUserAction($id)
@@ -65,7 +69,38 @@ class UsersController extends FOSRestController
 
         $user = $em->getRepository('AppBundle:User')->findOneById($id);
 
-        $view = $this->view(array('user' => $user), 200);
+        $view = $this->view($user, 200);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Get all user devices.
+     *
+     * @param int $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @View()
+     *
+     * @Get("/users/devices/{id}")
+     *
+     * @ApiDoc(
+     *  resource=true,
+     *  section="Devices",
+     *  description="Get all devices"
+     * )
+     */
+    public function getDevicesByUserAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $em->getRepository('AppBundle:User')->find($id);
+        $total = count($user->getDevices());
+
+        $view = $this->view(
+            array(
+                'Total'         => $total,
+                'User devices'  => $user->getDevices()
+            ), 200);
 
         return $this->handleView($view);
     }
@@ -84,46 +119,22 @@ class UsersController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Register user",
-     *  requirements={
-     *      {
-     *          "name"="username",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="User name"
-     *      },
-     *      {
-     *          "name"="email",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="User email"
-     *      },
-     *      {
-     *          "name"="password",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="User password"
-     *      }
-     *  }
+     *  description="Register user"
      * )
      */
-    public function registerUserAction(Request $request)
+    public function registerUserAction($username, $email, $password)
     {
         $userManager = $this->get('fos_user.user_manager');
-        $entityManager = $this->get('doctrine')->getManager();
-        $data = $request->attributes->all();
 
         $user = $userManager->createUser();
-        $user->setUsername($data['username']);
-        $user->setEmail($data['email']);
-        $user->setPlainPassword($data['password']);
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setPlainPassword($password);
         $user->setEnabled(true);
 
         $userManager->updateUser($user);
 
-        $view = $this->view(array(
-            'Status' => "User correctly registered",
-            'User' => $user), 201);
+        $view = $this->view($user, 201);
 
         return $this->handleView($view);
     }
@@ -141,33 +152,18 @@ class UsersController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Register user",
-     *  requirements={
-     *      {
-     *          "name"="username",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="User name"
-     *      },
-     *      {
-     *          "name"="password",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="User password"
-     *      }
-     *  }
+     *  description="Register user"
      * )
      */
-    public function loginUserAction(Request $request, $username, $password)
+    public function loginUserAction($email, $password, Request $request)
     {
         $user_manager = $this->get('fos_user.user_manager');
         $factory = $this->get('security.encoder_factory');
 
-        $user = $user_manager->findUserByUsername($username);
+        $user = $user_manager->findUserByEmail($email);
 
         if($user === null){
-            $view = $this->view(array(
-                'Status' => false), 200);
+            $view = $this->view(false, 200);
 
             return $this->handleView($view);
         }
@@ -177,14 +173,13 @@ class UsersController extends FOSRestController
 
         if($auth){
             $providerKey = $this->getParameter('fos_user.firewall_name');
-            $token = new UsernamePasswordToken($username, $password, $providerKey, $user->getRoles());
+            $token = new UsernamePasswordToken($user->getUsername(), $password, $providerKey, $user->getRoles());
             $this->get("security.token_storage")->setToken($token);
             $event = new InteractiveLoginEvent($request, $token);
             $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
         }
 
-        $view = $this->view(array(
-            'Status' => $auth), 200);
+        $view = $this->view($auth, 200);
 
         return $this->handleView($view);
     }
@@ -201,27 +196,19 @@ class UsersController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Users",
-     *  description="Delete a single user",
-     *  requirements={
-     *      {
-     *          "name"="id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="User id"
-     *      }
-     *  }
+     *  description="Delete a single user"
      * )
      */
     public function deleteUserAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('AppBundle:User')->findOneById($id);
+        $user = $em->getRepository('AppBundle:User')->find($id);
 
         $em->remove($user);
         $em->flush();
 
-        $view = $this->view(array('User' => $user), 202);
+        $view = $this->view($user, 202);
 
         return $this->handleView($view);
     }

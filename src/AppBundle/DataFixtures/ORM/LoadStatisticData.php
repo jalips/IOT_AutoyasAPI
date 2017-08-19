@@ -18,35 +18,41 @@ class LoadStatisticData extends AbstractFixture implements OrderedFixtureInterfa
      */
     public function load(ObjectManager $manager)
     {
-        $format = "Y-m-d H:i:s";
+        $date = new DateTime();
 
         $toto = new Statistic();
         $toto->setData(20);
+        $toto->setCreatedAt($date);
         $toto->setStatisticType($manager->merge($this->getReference('statistic-type-temp')));
         $toto->setDevice($manager->merge($this->getReference('device-a')));
 
         $titi  = new Statistic();
         $titi->setData(78);
+        $toto->setCreatedAt($date->modify("-1 day"));
         $titi->setStatisticType($manager->merge($this->getReference('statistic-type-hydro')));
         $titi->setDevice($manager->merge($this->getReference('device-a')));
 
         $tata  = new Statistic();
         $tata->setData(50);
+        $toto->setCreatedAt($date->modify("-2 day"));
         $tata->setStatisticType($manager->merge($this->getReference('statistic-type-valve')));
         $tata->setDevice($manager->merge($this->getReference('device-a')));
 
         $tete = new Statistic();
         $tete->setData(15);
+        $toto->setCreatedAt($date->modify("-3 day"));
         $tete->setStatisticType($manager->merge($this->getReference('statistic-type-temp')));
         $tete->setDevice($manager->merge($this->getReference('device-b')));
 
         $tutu  = new Statistic();
         $tutu->setData(28);
+        $toto->setCreatedAt($date->modify("-4 day"));
         $tutu->setStatisticType($manager->merge($this->getReference('statistic-type-hydro')));
         $tutu->setDevice($manager->merge($this->getReference('device-b')));
 
         $tyty  = new Statistic();
         $tyty->setData(90);
+        $toto->setCreatedAt($date->modify("-5 day"));
         $tyty->setStatisticType($manager->merge($this->getReference('statistic-type-valve')));
         $tyty->setDevice($manager->merge($this->getReference('device-b')));
 

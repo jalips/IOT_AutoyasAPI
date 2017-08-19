@@ -2,12 +2,13 @@
 
 namespace AppBundle\Entity;
 
+use JMS\Serializer\Annotation\Type;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * StatisticType
  *
- * @ORM\Table(name="statistic_type")
+ * @ORM\Table(name="statistic_type", uniqueConstraints={@ORM\UniqueConstraint(name="id_UNIQUE", columns={"id"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\StatisticTypeRepository")
  */
 class StatisticType
@@ -18,6 +19,7 @@ class StatisticType
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Type("integer")
      */
     private $id;
 
@@ -25,16 +27,9 @@ class StatisticType
      * @var string
      *
      * @ORM\Column(name="name", type="string")
+     * @Type("string")
      */
     private $name;
-
-    /**
-     * Device constructor.
-     */
-    public function __construct()
-    {
-    }
-
 
     /**
      * Get id
@@ -45,6 +40,15 @@ class StatisticType
     {
         return $this->id;
     }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
 
     /**
      * Set name

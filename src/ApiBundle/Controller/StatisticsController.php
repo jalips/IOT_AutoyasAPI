@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Controller;
+namespace ApiBundle\Controller;
 
 use AppBundle\Entity\Statistic;
 use DateTime;
@@ -35,8 +35,13 @@ class StatisticsController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
         $statistics = $em->getRepository('AppBundle:Statistic')->findAll();
+        $total = count($statistics);
 
-        $view = $this->view($statistics, 200);
+        $view = $this->view(
+            array(
+                'Total'         => $total,
+                'Statistics'    => $statistics
+            ), 200);
 
         return $this->handleView($view);
     }
@@ -54,27 +59,7 @@ class StatisticsController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
-     *  description="Get a single statistic",
-     *  requirements={
-     *      {
-     *          "name"="statisticType",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="Statistic type name"
-     *      },
-     *      {
-     *          "name"="device",
-     *          "dataType"="string",
-     *          "requirement"="\",
-     *          "description"="Statistic device mac adress"
-     *      },
-     *      {
-     *          "name"="createdAt",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="Statistic date of creation"
-     *      }
-     *   }
+     *  description="Get a single statistic"
      * )
      */
     public function getStatisticAction($statisticType, $device, $createdAt)
@@ -90,13 +75,14 @@ class StatisticsController extends FOSRestController
         );
 
         $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array(  'createdAt'     => new DateTime($createdAt),
-                    'statisticType' => $fullStatisticType->getId(),
-                    'device'       => $fullDevice->getId()
-                )
+            array(
+                'createdAt'     => new DateTime($createdAt),
+                'statisticType' => $fullStatisticType->getId(),
+                'device'       => $fullDevice->getId()
+            )
         );
 
-        $view = $this->view(array('statistic' => $statistic), 200);
+        $view = $this->view($statistic, 200);
 
         return $this->handleView($view);
     }
@@ -112,26 +98,16 @@ class StatisticsController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
-     *  description="Get a single statistic by id",
-     *  requirements={
-     *      {
-     *          "name"="id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic id"
-     *      }
-     *  }
+     *  description="Get a single statistic by id"
      * )
      */
     public function getStatisticByIdAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array('id' => $id)
-        );
+        $statistic = $em->getRepository('AppBundle:Statistic')->find($id);
 
-        $view = $this->view(array('statistic' => $statistic), 200);
+        $view = $this->view($statistic, 200);
 
         return $this->handleView($view);
     }
@@ -149,21 +125,7 @@ class StatisticsController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
-     *  description="Insert new statistic",
-     *  requirements={
-     *      {
-     *          "name"="data",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="Statistic data"
-     *      },
-     *      {
-     *          "name"="statisticType",
-     *          "dataType"="string",
-     *          "requirement"="\s",
-     *          "description"="Statistic type name"
-     *      }
-     *  }
+     *  description="Insert new statistic"
      * )
      */
     public function newStatisticAction($data, $statisticType)
@@ -186,9 +148,7 @@ class StatisticsController extends FOSRestController
         $em->persist($statistic);
         $em->flush();
 
-        $view = $this->view(array(
-            'Status' => "Statistic correctly registered",
-            'Device' => $statistic), 201);
+        $view = $this->view($statistic, 201);
 
         return $this->handleView($view);
     }
@@ -204,29 +164,19 @@ class StatisticsController extends FOSRestController
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
-     *  description="Delete a single statistic",
-     *  requirements={
-     *      {
-     *          "name"="id",
-     *          "dataType"="integer",
-     *          "requirement"="\d+",
-     *          "description"="Statistic id"
-     *      }
-     *  }
+     *  description="Delete a single statistic"
      * )
      */
     public function deleteStatisticAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
-            array('id' => $id)
-        );
+        $statistic = $em->getRepository('AppBundle:Statistic')->find($id);
 
         $em->remove($statistic);
         $em->flush();
 
-        $view = $this->view(array('Statistic' => $statistic), 202);
+        $view = $this->view($statistic, 202);
 
         return $this->handleView($view);
     }

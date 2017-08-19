@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use JMS\Serializer\Annotation\Type;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User
  *
- * @ORM\Table(name="fos_user")
+ * @ORM\Table(name="fos_user", uniqueConstraints={@ORM\UniqueConstraint(name="id_UNIQUE", columns={"id"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
 class User extends BaseUser
@@ -20,13 +21,15 @@ class User extends BaseUser
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Type("integer")
      */
     protected $id;
 
     /**
-     * @var \AppBundle\Entity\Device
+     * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Device", mappedBy="user")
+     * @Type("AppBundle\Entity\Device")
      */
     private $devices;
 
@@ -37,7 +40,6 @@ class User extends BaseUser
 
         $this->devices = new ArrayCollection();
     }
-
 
     /**
      * Get id
@@ -50,7 +52,15 @@ class User extends BaseUser
     }
 
     /**
-     * @return Device
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return ArrayCollection
      */
     public function getDevices()
     {
@@ -58,11 +68,27 @@ class User extends BaseUser
     }
 
     /**
-     * @param Device $devices
+     * @param ArrayCollection $devices
      */
     public function setDevices($devices)
     {
         $this->devices = $devices;
+    }
+
+    /**
+     * Add devices
+     *
+     * @param \AppBundle\Entity\Device $devices
+     * @return User
+     */
+    public function addDevices($devices)
+    {
+        if (!$this->devices->contains($devices))
+        {
+            $this->devices[] = $devices;
+        }
+
+        return $this;
     }
 }
 

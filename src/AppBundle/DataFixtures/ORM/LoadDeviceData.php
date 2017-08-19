@@ -16,27 +16,27 @@ class LoadDeviceData extends AbstractFixture implements OrderedFixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        $toto = new Device();
-        $toto->setMacAdress("5E:FF:56:A2:AF:15");
-        $toto->setStatus(1);
+        $a = new Device();
+        $a->setMacAdress("5E:FF:56:A2:AF:15");
+        $a->setStatus(1);
 
-        $titi  = new Device();
-        $titi->setMacAdress("6E:FF:58:A3:AF:16");
-        $titi->setStatus(1);
+        $b  = new Device();
+        $b->setMacAdress("6E:FF:58:A3:AF:16");
+        $b->setStatus(1);
 
-        $manager->persist($toto);
-        $manager->persist($titi);
+        $manager->persist($a);
+        $manager->persist($b);
 
         $manager->flush();
 
-        $this->addReference('device-a', $toto);
-        $this->addReference('device-b', $titi);
+        $this->addReference('device-a', $a);
+        $this->addReference('device-b', $b);
     }
 
     public function getOrder()
     {
         // the order in which fixtures will be loaded
         // the lower the number, the sooner that this fixture is loaded
-        return 2;
+        return 1;
     }
 }
