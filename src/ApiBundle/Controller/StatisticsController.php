@@ -47,7 +47,7 @@ class StatisticsController extends FOSRestController
     }
 
     /**
-     * Get single statistic.
+     * Get single statistic by params.
      *
      * @param string $statisticType
      * @param string $device
@@ -55,14 +55,14 @@ class StatisticsController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Get("/statictics/{statisticType}/{device}/{createdAt}")
+     * @Get("/statistics/{statisticType}/{device}/{createdAt}")
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
-     *  description="Get a single statistic"
+     *  description="Get a single statistic by params"
      * )
      */
-    public function getStatisticAction($statisticType, $device, $createdAt)
+    public function getStatisticByParamsAction($statisticType, $device, $createdAt)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -74,11 +74,13 @@ class StatisticsController extends FOSRestController
             array('macAdress' => $device)
         );
 
+        $date = $date = DateTime::createFromFormat("Y-m-d H:i:s", $createdAt);
+
         $statistic = $em->getRepository('AppBundle:Statistic')->findOneBy(
             array(
-                'createdAt'     => new DateTime($createdAt),
-                'statisticType' => $fullStatisticType->getId(),
-                'device'       => $fullDevice->getId()
+                'createdAt'     => $date,
+                'device'        => $fullDevice->getId(),
+                'statisticType' => $fullStatisticType->getId()
             )
         );
 
@@ -94,7 +96,7 @@ class StatisticsController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Get("/statictics/{id}")
+     * @Get("/statistics/{id}")
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
@@ -160,7 +162,7 @@ class StatisticsController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @View()
      *
-     * @Delete("/statictic/{id}/delete")
+     * @Delete("/statistic/{id}/delete")
      * @ApiDoc(
      *  resource=true,
      *  section="Statistics",
